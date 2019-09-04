@@ -36,6 +36,18 @@ public class BluetoothConnecion extends Thread {
     }
 
     public void run() {
+        if(device.getBondState() != BluetoothDevice.BOND_BONDED){//判断给定地址下的device是否已经配对
+            try{
+                ClsUtils.createBond(device.getClass(), device);
+                ClsUtils.autoBond(device.getClass(), device, "0000");//设置pin值
+                ClsUtils.cancelPairingUserInput(device.getClass(), device);
+            } catch (Exception e) {
+                System.out.println("配对不成功");
+            }
+        }
+
+
+
         BluetoothSocket bluetoothSockettmp = null;
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         // 获得用于指定蓝牙连接的BluetoothSocket

@@ -19,15 +19,18 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import top.zhost.buletooth.adapter.DeviceListAdapter;
+
 public class MainActivity extends Activity {
 
     //private Button On,Off,Visible,list;
-    private ArrayList list = new ArrayList();
-    private ArrayAdapter adapter;
+    private ArrayList<BluetoothDevice> list = new ArrayList();
+    private DeviceListAdapter adapter;
     private BluetoothAdapter bluetoothAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice deviceTarget;
@@ -37,15 +40,15 @@ public class MainActivity extends Activity {
 
     private Context mContext;
 
-    //String searchName = "zzbule2";
-    String searchName = "00000001";
+    String searchName = "zzbule2";
+    //String searchName = "00000001";
 
     private Handler mhandler = new  Handler(){
         // 通过复写handlerMessage()从而确定更新UI的操作
         @Override
         public void handleMessage(Message msg) {
 
-            Toast. makeText(mContext, msg.obj+"", Toast.LENGTH_LONG).show();
+            Toast. makeText(mContext, msg.obj+"", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -68,7 +71,7 @@ public class MainActivity extends Activity {
         String address = bluetoothAdapter.getAddress();
         String name = bluetoothAdapter.getName();
         String toastText = name + " :" + address;
-        Toast. makeText(this, toastText, Toast.LENGTH_LONG).show();
+        Toast. makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
         // 找到设备的广播
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -79,17 +82,29 @@ public class MainActivity extends Activity {
         // 注册广播
         registerReceiver(receiver, filter);
 
-        adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
+        //adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
+        adapter = new DeviceListAdapter(mContext,list);
         lv.setAdapter(adapter);
+
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BluetoothDevice bluetoothDevice = list.get(position);
+                Toast.makeText(MainActivity.this, bluetoothDevice.getAddress(), Toast.LENGTH_SHORT).show();
+                deviceTarget = bluetoothDevice;
+            }
+        });
     }
 
     public void on(View view){
         if (!bluetoothAdapter.isEnabled()) {
             Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(turnOn, 0);
-            Toast.makeText(getApplicationContext(),"Turned on",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"Turned on",Toast.LENGTH_SHORT).show();
         } else{
-            Toast.makeText(getApplicationContext(),"Already on", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"Already on", Toast.LENGTH_SHORT).show();
         }
     }
     public void list(View view){
@@ -97,14 +112,12 @@ public class MainActivity extends Activity {
 
 
         for(BluetoothDevice bt : pairedDevices) {
-            list.add(bt.getName() + " " + bt.getAddress());
+            list.add(bt);
 
-            if(searchName.equals(bt.getName())){
-//                bluetoothConnecion = new BluetoothConnecion(bt);
-//                bluetoothConnecion.start();
-                deviceTarget = bt;
-                Toast.makeText(MainActivity.this, searchName, Toast.LENGTH_SHORT).show();
-            }
+//            if(searchName.equals(bt.getName())){
+//                deviceTarget = bt;
+//                Toast.makeText(MainActivity.this, searchName, Toast.LENGTH_SHORT).show();
+//            }
         }
 
         adapter.notifyDataSetChanged();
@@ -113,6 +126,10 @@ public class MainActivity extends Activity {
     }
 
     public void connect(View view){
+        if(deviceTarget == null){
+            Toast.makeText(MainActivity.this, "deviceTarget == null", Toast.LENGTH_SHORT).show();
+            return;
+        }
         bluetoothConnecion = new BluetoothConnecion(deviceTarget);
         bluetoothConnecion.setMhandler(mhandler);
         bluetoothConnecion.start();
@@ -120,8 +137,7 @@ public class MainActivity extends Activity {
 
     public void off(View view){
         bluetoothAdapter.disable();
-        Toast.makeText(getApplicationContext(),"Turned off" ,
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),"Turned off" , Toast.LENGTH_SHORT).show();
     }
     public void visible(View view){
 //        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -248,13 +264,14 @@ public class MainActivity extends Activity {
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     // 添加到列表
                     //tvDevices.append(device.getName() + ":" + device.getAddress() + "\n");
-                    list.add(device.getName() + " " + device.getAddress());
+                    list.add(device);
                     adapter.notifyDataSetChanged();
                     //String searchName = "00000001";//"zzbule2"
-                    if(searchName.equals(device.getName())){
-                        deviceTarget = device;
-                        Toast.makeText(MainActivity.this, searchName, Toast.LENGTH_SHORT).show();
-                    }
+//                    if(searchName.equals(device.getName())){
+//                        deviceTarget = device;
+//                        Toast.makeText(MainActivity.this, searchName, Toast.LENGTH_SHORT).show();
+//                        bluetoothAdapter.cancelDiscovery();
+//                    }
                 }
                 // 搜索完成
             }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED
