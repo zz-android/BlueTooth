@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
 
         // 找到设备的广播
         IntentFilter filter = new IntentFilter();
-
+        filter.setPriority(1000);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -266,6 +266,15 @@ public class MainActivity extends Activity {
                     //tvDevices.append(device.getName() + ":" + device.getAddress() + "\n");
                     list.add(device);
                     adapter.notifyDataSetChanged();
+                    if("zzbule2".equals(device.getName())|| "00000001".equals(device.getName())){
+                        try {
+                            bluetoothAdapter.cancelDiscovery();
+                            ClsUtils.createBond(device.getClass(), device);
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
                     //String searchName = "00000001";//"zzbule2"
 //                    if(searchName.equals(device.getName())){
 //                        deviceTarget = device;
@@ -274,13 +283,19 @@ public class MainActivity extends Activity {
 //                    }
                 }
                 // 搜索完成
-            }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED
-                    .equals(action)) {
+            }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 //关闭进度条
                 setProgressBarIndeterminateVisibility(true);
                 setTitle("搜索完成！");
             }else if(action.equals("android.bluetooth.device.action.PAIRING_REQUEST")){
+                BluetoothDevice mBluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 setTitle("PAIRING_REQUEST！");
+                abortBroadcast();
+                try {
+                    boolean ret = ClsUtils.autoBond(mBluetoothDevice.getClass(), mBluetoothDevice, "0000");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
