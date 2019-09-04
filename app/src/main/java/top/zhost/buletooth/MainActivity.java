@@ -94,6 +94,18 @@ public class MainActivity extends Activity {
                 BluetoothDevice bluetoothDevice = list.get(position);
                 Toast.makeText(MainActivity.this, bluetoothDevice.getAddress(), Toast.LENGTH_SHORT).show();
                 deviceTarget = bluetoothDevice;
+
+                if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
+
+                    if ("zzbule2".equals(bluetoothDevice.getName()) || "00000001".equals(bluetoothDevice.getName())) {
+                        try {
+
+                            ClsUtils.createBond(bluetoothDevice.getClass(), bluetoothDevice);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         });
     }
@@ -269,7 +281,7 @@ public class MainActivity extends Activity {
                     if("zzbule2".equals(device.getName())|| "00000001".equals(device.getName())){
                         try {
                             bluetoothAdapter.cancelDiscovery();
-                            ClsUtils.createBond(device.getClass(), device);
+                            //ClsUtils.createBond(device.getClass(), device);
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
