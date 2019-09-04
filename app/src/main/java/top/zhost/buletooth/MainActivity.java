@@ -74,11 +74,11 @@ public class MainActivity extends Activity {
         Toast. makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
         // 找到设备的广播
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        // 注册广播
-        registerReceiver(receiver, filter);
-        // 搜索完成的广播
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        IntentFilter filter = new IntentFilter();
+
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         // 注册广播
         registerReceiver(receiver, filter);
 
@@ -279,6 +279,8 @@ public class MainActivity extends Activity {
                 //关闭进度条
                 setProgressBarIndeterminateVisibility(true);
                 setTitle("搜索完成！");
+            }else if(action.equals("android.bluetooth.device.action.PAIRING_REQUEST")){
+                setTitle("PAIRING_REQUEST！");
             }
         }
     };
