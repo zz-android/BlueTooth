@@ -1,4 +1,4 @@
-package top.zhost.buletooth;
+package top.zhost.buletooth.activity;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -20,10 +20,12 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import top.zhost.buletooth.BluetoothConnecion;
+import top.zhost.buletooth.ClsUtils;
+import top.zhost.buletooth.R;
 import top.zhost.buletooth.adapter.DeviceListAdapter;
 
 public class MainActivity extends Activity {
