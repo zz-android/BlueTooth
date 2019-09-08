@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -17,11 +19,15 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import top.zhost.buletooth.ClsUtils;
 import top.zhost.buletooth.R;
 import top.zhost.buletooth.adapter.DeviceListAdapter;
+import top.zhost.buletooth.connection.WriteSnConnecion;
+import top.zhost.buletooth.connection.WriteTimeConnecion;
 
 public class CommandActivity extends Activity {
 
@@ -35,6 +41,24 @@ public class CommandActivity extends Activity {
     private ListView lv;
 
     private Context mContext;
+
+    private BluetoothDevice deviceTarget;
+
+    private Handler mWriteMandler = new  Handler(){
+        // 通过复写handlerMessage()从而确定更新UI的操作
+        @Override
+        public void handleMessage(Message msg) {
+            String result = msg.obj+"";
+            if("snok}".equals(result)){
+                Toast. makeText(mContext, "sn写入成功", Toast.LENGTH_SHORT).show();
+            }else if("on".equals(result) || "off".equals(result)){
+                Toast. makeText(mContext, "时间同步成功"+result, Toast.LENGTH_SHORT).show();
+            }else{
+                Toast. makeText(mContext, result, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +76,18 @@ public class CommandActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice bluetoothDevice = list.get(position);
-                Toast.makeText(mContext, bluetoothDevice.getAddress(), Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(mContext, bluetoothDevice.getAddress()+"已选择", Toast.LENGTH_SHORT).show();
+                deviceTarget = bluetoothDevice;
                 if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
 
-                    if ("zzbule2".equals(bluetoothDevice.getName()) || "00000001".equals(bluetoothDevice.getName())) {
-                        try {
+                    try {
 
-                            ClsUtils.createBond(bluetoothDevice.getClass(), bluetoothDevice);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        ClsUtils.createBond(bluetoothDevice.getClass(), bluetoothDevice);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                }else{
+
                 }
             }
         });
@@ -78,6 +102,15 @@ public class CommandActivity extends Activity {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         // 注册广播
         registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(turnOn, 0);
+        }
     }
 
     @Override
@@ -118,14 +151,41 @@ public class CommandActivity extends Activity {
         setTitle("正在搜索...");
         if (!bluetoothAdapter.isEnabled()){
             Toast.makeText(this, "failed", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (bluetoothAdapter.isDiscovering()){
             bluetoothAdapter.cancelDiscovery();//停止搜索
+            return;
         }
-
+        Toast.makeText(mContext, "开始搜索约12秒，再次点击可立即停止", Toast.LENGTH_SHORT).show();
+        list.clear();
         bluetoothAdapter.startDiscovery();
 
+    }
+    public void writeClick(View view){
+        if(deviceTarget == null){
+            Toast.makeText(mContext, "请搜索后选择一台设备", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String sn = codeET.getText().toString();
+
+        WriteSnConnecion writeSnConnecion = new WriteSnConnecion(deviceTarget,sn,mWriteMandler);
+        writeSnConnecion.start();
+    }
+
+
+    public void timeClick(View view){
+        if(deviceTarget == null){
+            Toast.makeText(mContext, "请搜索后选择一台设备", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //String time = "2019-03-19 17:16:15";
+        Date d = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time = sdf.format(d);
+        WriteTimeConnecion timenConnecion = new WriteTimeConnecion(deviceTarget,time,mWriteMandler);
+        timenConnecion.start();
     }
 
     // 广播接收器
@@ -140,36 +200,35 @@ public class CommandActivity extends Activity {
                 // 从intent中获取设备
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // 判断是否配对过
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    // 添加到列表
-                    //tvDevices.append(device.getName() + ":" + device.getAddress() + "\n");
-                    list.add(device);
-                    adapter.notifyDataSetChanged();
-                    if("zzbule2".equals(device.getName())|| "00000001".equals(device.getName())){
-                        try {
-                            bluetoothAdapter.cancelDiscovery();
-                            //ClsUtils.createBond(device.getClass(), device);
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
+                //if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
 
-                }
-                // 搜索完成
+                list.add(device);
+                adapter.notifyDataSetChanged();
+//                if("zzbule2".equals(device.getName())|| "00000001".equals(device.getName())){
+//                    try {
+//                        bluetoothAdapter.cancelDiscovery();
+//                        //ClsUtils.createBond(device.getClass(), device);
+//                    } catch (Exception e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
+//                }
+
+                //}
             }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-
+                //Toast.makeText(mContext, "搜索完成！", Toast.LENGTH_SHORT).show();
                 setTitle("搜索完成！");
-            }else if(action.equals("android.bluetooth.device.action.PAIRING_REQUEST")){
-                BluetoothDevice mBluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                setTitle("PAIRING_REQUEST！");
-                abortBroadcast();
-                try {
-                    boolean ret = ClsUtils.autoBond(mBluetoothDevice.getClass(), mBluetoothDevice, "0000");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
+//            else if(action.equals("android.bluetooth.device.action.PAIRING_REQUEST")){
+//                BluetoothDevice mBluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                setTitle("PAIRING_REQUEST！");
+//                abortBroadcast();
+//                try {
+//                    boolean ret = ClsUtils.autoBond(mBluetoothDevice.getClass(), mBluetoothDevice, "0000");
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
     };
 }

@@ -26,15 +26,17 @@
         </provider>
 
         <activity android:name=".activity.MainActivity" android:screenOrientation="portrait" >
-        </activity>
-        <activity android:name=".activity.OverViewActivity" android:screenOrientation="portrait" >
 
         </activity>
-        <activity android:name=".activity.CommandActivity" android:screenOrientation="portrait" >
+        <activity android:name=".activity.OverViewActivity" android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity android:name=".activity.CommandActivity" android:screenOrientation="portrait" >
+
         </activity>
         <activity android:name=".activity.UpdateApkActivity" android:screenOrientation="portrait" >
 

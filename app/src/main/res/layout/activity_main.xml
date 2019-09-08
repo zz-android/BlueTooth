@@ -32,26 +32,59 @@
             android:layout_height="wrap_content"
             android:onClick="server"
             android:text="S监听" />
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="visible"
-            android:text="C搜索" />
-        <Button
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="visible"
+                android:text="C搜索" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="bondClick"
+                android:text="配对" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="list"
-            android:text="C已配对" />
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="listBind"
+                android:text="C已配对" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="unBondClick"
+                android:text="解除配对" />
+        </LinearLayout>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="connect"
             android:text="连接" />
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="write"
-            android:text="C写数据" />
+            android:orientation="horizontal"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="write"
+                android:text="C写数据" />
+            <EditText
+                android:id="@+id/writeContentET"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:text="ota begin}"
+                />
+        </LinearLayout>
         <ListView
             android:id="@+id/listView1"
             android:layout_width="match_parent"

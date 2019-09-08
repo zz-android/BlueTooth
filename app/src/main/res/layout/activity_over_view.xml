@@ -13,7 +13,7 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="over_view"
+            android:text="硬件操作："
             />
         <Button
             android:layout_width="wrap_content"
@@ -24,7 +24,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="goCommandClick"
-            android:text="修改名称" />
+            android:text="sn与时间同步" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="软件："
+            />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,6 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="goMainClick"
+            android:visibility="invisible"
             android:text="测试" />
 
     </LinearLayout>

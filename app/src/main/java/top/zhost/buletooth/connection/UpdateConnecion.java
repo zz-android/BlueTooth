@@ -9,6 +9,8 @@ import android.os.Message;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,10 +19,10 @@ import java.util.UUID;
  * @author hbbliyong
  *
  */
-public class WriteSnConnecion extends Thread {
+public class UpdateConnecion extends Thread {
 
     private Handler mhandler;
-    private String sn;
+    byte[] bufferFile;
     private  BluetoothSocket mSocket;
     private  InputStream mInStream;
     private  OutputStream mOutStream;
@@ -30,9 +32,9 @@ public class WriteSnConnecion extends Thread {
     // 用于本应用程序唯一的UUID，
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    public WriteSnConnecion(BluetoothDevice device,String sn,Handler mhandler) {
+    public UpdateConnecion(BluetoothDevice device, byte[] bufferFile, Handler mhandler) {
         this.device = device;
-        this.sn = sn;
+        this.bufferFile = bufferFile;
         this.mhandler = mhandler;
 
     }
@@ -45,6 +47,7 @@ public class WriteSnConnecion extends Thread {
         BluetoothSocket bluetoothSockettmp = null;
         // 获得用于指定蓝牙连接的BluetoothSocket
         try {
+
             bluetoothSockettmp = device.createRfcommSocketToServiceRecord(MY_UUID);
             //bluetoothSockettmp = device.createRfcommSocketToServiceRecord(uuid);
             //bluetoothSockettmp =(BluetoothSocket) device.getClass().getMethod("createRfcommSocketToServiceRecord", new Class[] {int.class}).invoke(device,MY_UUID);
@@ -52,6 +55,7 @@ public class WriteSnConnecion extends Thread {
             e.printStackTrace();
         }
         mSocket = bluetoothSockettmp;
+
 
 
         // 建立到BluetoothSocket的连接
@@ -63,18 +67,30 @@ public class WriteSnConnecion extends Thread {
             mOutStream = mSocket.getOutputStream();
             buffer = new byte[1024];
 
-            String snCommand = this.sn + "}";
+            String snCommand = "ota begin}";
             mOutStream.write(snCommand.getBytes());
-
-            // 从套接字流读取数据
-//            byte[] bufferRead = new byte[1024];
-//            mInStream.read(bufferRead);
-//            String readStr = new String(bufferRead);
-            String readStr = readString(mInStream);
-
+            String readStrB = readString(mInStream);
             Message msg = Message.obtain(); // 实例化消息对象
-            msg.obj = readStr; // 消息内容存放
+            msg.obj = readStrB; // 消息内容存放
             mhandler.sendMessage(msg);
+            if(!"bok}".equals(readStrB)){
+                return;
+            }
+            writeFile();
+
+
+            mOutStream.write("ota done}".getBytes());
+//            byte[] resultByte = new byte[64];
+//            mInStream.read(resultByte);
+//            String resultStr = new String(resultByte);
+            String resultStr = readString(mInStream);
+            Message msg2 = Message.obtain(); // 实例化消息对象
+            msg2.obj = resultStr; // 消息内容存放
+            mhandler.sendMessage(msg2);
+
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
             Message msg = Message.obtain(); // 实例化消息对象
@@ -108,5 +124,26 @@ public class WriteSnConnecion extends Thread {
         }
         return ret;
 
+    }
+    private void writeFile() throws Exception{
+        //mOutStream.write(bufferFile);
+        List<byte[]> subAryList = new ArrayList<byte[]>();
+        int block = (bufferFile.length/500)+1;
+        for (int i = 0; i < block; i++) {
+            if((i+1)==block){
+                byte[] sub =java.util.Arrays.copyOfRange(bufferFile,i*500,bufferFile.length);
+                subAryList.add(sub);
+            }else{
+                byte[] sub =java.util.Arrays.copyOfRange(bufferFile,i*500,i*500+500);
+                subAryList.add(sub);
+            }
+        }
+        for(byte[] subByte : subAryList){
+            mOutStream.write(subByte);
+            String readStrB = readString(mInStream);
+            if(!"wok}".equals(readStrB)){
+                mSocket.close();
+            }
+        }
     }
 }

@@ -4,25 +4,68 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="固件升级"
+        />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="activity_update_bin"
-            />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
         <TextView
             android:id="@+id/newVersionTV"
-            android:layout_width="175dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="最新版本 1.0.0"
+            android:text="最新版本"
             android:textSize="16dp"
             android:textColor="#747474"
             />
-
+        <TextView
+            android:id="@+id/versionDownloadTV"
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:text="版本获取中"
+            android:textSize="16dp"
+            android:textColor="#747474"
+            />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="searchClick"
+            android:text="搜索" />
+        <Button
+            android:id="@+id/updateBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="writeClick"
+            android:text="升级选中设备" />
+        <Button
+            android:id="@+id/updateBatchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="writeBatchClick"
+            android:text="批量自动升级" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/updateBatchTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注：批量自动升级只会升级设备名称JY开头的设备"
+        android:textSize="16dp"
+        android:textColor="#747474"
+        />
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible" >
+
+    </ListView>
 </LinearLayout>

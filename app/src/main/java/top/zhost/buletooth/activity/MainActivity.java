@@ -20,6 +20,7 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,6 +37,8 @@ public class MainActivity extends Activity {
     private BluetoothAdapter bluetoothAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice deviceTarget;
+
+    private EditText writeContentET;
 
     private BluetoothConnecion bluetoothConnecion;
     private ListView lv;
@@ -61,6 +64,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
+        writeContentET = findViewById(R.id.writeContentET);
 //        On = findViewById(R.id.button1);
 //        Off = findViewById(R.id.button2);
 //        Visible = findViewById(R.id.button3);
@@ -97,17 +101,17 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this, bluetoothDevice.getAddress(), Toast.LENGTH_SHORT).show();
                 deviceTarget = bluetoothDevice;
 
-                if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
-
-                    if ("zzbule2".equals(bluetoothDevice.getName()) || "00000001".equals(bluetoothDevice.getName())) {
-                        try {
-
-                            ClsUtils.createBond(bluetoothDevice.getClass(), bluetoothDevice);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+//                if (bluetoothDevice.getBondState() != BluetoothDevice.BOND_BONDED) {
+//
+//                    if ("zzbule2".equals(bluetoothDevice.getName()) || "00000001".equals(bluetoothDevice.getName())) {
+//                        try {
+//                            Toast.makeText(MainActivity.this, "开始配对", Toast.LENGTH_SHORT).show();
+//                            ClsUtils.createBond(bluetoothDevice.getClass(), bluetoothDevice);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
             }
         });
     }
@@ -121,23 +125,7 @@ public class MainActivity extends Activity {
             Toast.makeText(getApplicationContext(),"Already on", Toast.LENGTH_SHORT).show();
         }
     }
-    public void list(View view){
-        pairedDevices = bluetoothAdapter.getBondedDevices();
 
-
-        for(BluetoothDevice bt : pairedDevices) {
-            list.add(bt);
-
-//            if(searchName.equals(bt.getName())){
-//                deviceTarget = bt;
-//                Toast.makeText(MainActivity.this, searchName, Toast.LENGTH_SHORT).show();
-//            }
-        }
-
-        adapter.notifyDataSetChanged();
-
-
-    }
 
     public void connect(View view){
         if(deviceTarget == null){
@@ -158,8 +146,9 @@ public class MainActivity extends Activity {
 //        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 //        startActivity(discoverableIntent);
         //设置进度条
-        setProgressBarIndeterminateVisibility(true);
+        //setProgressBarIndeterminateVisibility(true);
         setTitle("正在搜索...");
+        list.clear();
         if (!bluetoothAdapter.isEnabled()){
             Toast.makeText(MainActivity.this, "failed", Toast.LENGTH_SHORT).show();
         }
@@ -172,12 +161,57 @@ public class MainActivity extends Activity {
 
     }
 
+    public void listBind(View view){
+        list.clear();
+        pairedDevices = bluetoothAdapter.getBondedDevices();
+        for(BluetoothDevice bt : pairedDevices) {
+            list.add(bt);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    public void bondClick(View view){
+        if (deviceTarget.getBondState() != BluetoothDevice.BOND_BONDED) {
+
+            try {
+                Toast.makeText(MainActivity.this, "开始配对", Toast.LENGTH_SHORT).show();
+                ClsUtils.createBond(deviceTarget.getClass(), deviceTarget);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }else{
+            Toast.makeText(MainActivity.this, "已配对", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void unBondClick(View view){
+        if (deviceTarget.getBondState() == BluetoothDevice.BOND_BONDED) {
+
+            try {
+                Toast.makeText(MainActivity.this, "开始取消配对", Toast.LENGTH_SHORT).show();
+                ClsUtils.removeBond(deviceTarget.getClass(), deviceTarget);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }else{
+            Toast.makeText(MainActivity.this, "已取消配对", Toast.LENGTH_SHORT).show();
+        }
+        list.clear();
+        pairedDevices = bluetoothAdapter.getBondedDevices();
+        for(BluetoothDevice bt : pairedDevices) {
+            list.add(bt);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
     public void write(View view){
 
 
 
         if(bluetoothConnecion != null){
-            String send = "ota begin}";
+
+            String send = writeContentET.getText().toString();
             byte[] btyes = send.getBytes();
             bluetoothConnecion.write(btyes);
 //            bluetoothConnecion.cancel();
@@ -307,6 +341,7 @@ public class MainActivity extends Activity {
                 abortBroadcast();
                 try {
                     boolean ret = ClsUtils.autoBond(mBluetoothDevice.getClass(), mBluetoothDevice, "0000");
+                    Toast.makeText(getApplicationContext(),"PAIRING_REQUEST", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

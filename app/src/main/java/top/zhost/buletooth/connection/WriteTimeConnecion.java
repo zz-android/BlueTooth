@@ -17,10 +17,10 @@ import java.util.UUID;
  * @author hbbliyong
  *
  */
-public class WriteSnConnecion extends Thread {
+public class WriteTimeConnecion extends Thread {
 
     private Handler mhandler;
-    private String sn;
+    private String time;
     private  BluetoothSocket mSocket;
     private  InputStream mInStream;
     private  OutputStream mOutStream;
@@ -30,9 +30,9 @@ public class WriteSnConnecion extends Thread {
     // 用于本应用程序唯一的UUID，
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    public WriteSnConnecion(BluetoothDevice device,String sn,Handler mhandler) {
+    public WriteTimeConnecion(BluetoothDevice device, String time, Handler mhandler) {
         this.device = device;
-        this.sn = sn;
+        this.time = time;
         this.mhandler = mhandler;
 
     }
@@ -63,13 +63,9 @@ public class WriteSnConnecion extends Thread {
             mOutStream = mSocket.getOutputStream();
             buffer = new byte[1024];
 
-            String snCommand = this.sn + "}";
+            String snCommand = "time"+this.time + "}";
             mOutStream.write(snCommand.getBytes());
 
-            // 从套接字流读取数据
-//            byte[] bufferRead = new byte[1024];
-//            mInStream.read(bufferRead);
-//            String readStr = new String(bufferRead);
             String readStr = readString(mInStream);
 
             Message msg = Message.obtain(); // 实例化消息对象

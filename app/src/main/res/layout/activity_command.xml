@@ -8,23 +8,26 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="activity_command"
+        android:text="设备sn修改和时间同步"
         />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
         <EditText
             android:id="@+id/codeET"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="JY00000001"
             />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="goScanCodeClick"
-            android:text="扫描二维码" />
+            android:text="扫描sn二维码" />
 
     </LinearLayout>
     <LinearLayout
@@ -40,7 +43,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="writeClick"
-            android:text="写数据" />
+            android:text="写入sn" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="timeClick"
+            android:text="同步时间" />
     </LinearLayout>
     <ListView
         android:id="@+id/listView"

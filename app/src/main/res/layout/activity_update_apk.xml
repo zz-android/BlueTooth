@@ -13,7 +13,7 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="activity_update_apk"
+            android:text="软件升级"
             />
         <TextView
             android:id="@+id/nowVersionTV"
