@@ -367,9 +367,11 @@ public class UpdateBinActivity extends Activity {
                     }
 
                 }
+                if(device.getName()!=null){
+                    list.add(device);
+                    adapter.notifyDataSetChanged();
+                }
 
-                list.add(device);
-                adapter.notifyDataSetChanged();
 
 
                 //}

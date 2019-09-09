@@ -201,9 +201,10 @@ public class CommandActivity extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // 判断是否配对过
                 //if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-
-                list.add(device);
-                adapter.notifyDataSetChanged();
+                if(device.getName()!=null) {
+                    list.add(device);
+                    adapter.notifyDataSetChanged();
+                }
 //                if("zzbule2".equals(device.getName())|| "00000001".equals(device.getName())){
 //                    try {
 //                        bluetoothAdapter.cancelDiscovery();
